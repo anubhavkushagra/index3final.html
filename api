@@ -1,0 +1,32 @@
+// Mock state storage for devices
+let deviceStates = {
+  bulb1: 0, // 0 for off, 1 for on
+  bulb2: 0,
+  fan1: 0,
+};
+
+// API to toggle a device
+app.post("/toggle", (req, res) => {
+  const { device } = req.body; // Read the device name from the request body
+
+  
+
+  if (deviceStates.hasOwnProperty(device)) {
+    // Toggle the device state
+    deviceStates[device] = deviceStates[device] === 0 ? 1 : 0;
+
+    // Respond with all device states
+    res.status(200).json({
+      success: true,
+      message: `${device} toggled successfully.`,
+      states: deviceStates, // Send all device states
+    });
+  } else {
+    // Handle invalid device names
+    res.status(400).json({
+      success: false,
+      message: "Invalid device name. Valid devices are bulb1, bulb2, and fan1.",
+      states: deviceStates, // Send all device states even in case of error
+    });
+  }
+});
