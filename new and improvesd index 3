@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Home Control</title>
+
+  <!-- Link for Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #222;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #0e1a1f;
+      padding: 10px 20px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    header h1 {
+      color: #dce7d6;
+      font-size: 24px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header nav ul {
+      list-style: none;
+      display: flex;
+      gap: 15px;
+      margin: 0;
+      padding: 0;
+    }
+
+    header nav ul li a {
+      color: #dce7d6;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+
+    header nav ul li a:hover {
+      color: #598392;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 100px;
+    }
+
+    .device {
+      text-align: center;
+    }
+
+    .device .icon {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 15px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #444;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease-in-out;
+      position: relative;
+    }
+
+    .device .icon.on {
+      background-color: #fff;
+      box-shadow: 0 0 20px #fff, 0 0 40px #fff, 0 0 60px #fff;
+    }
+
+    .device .icon.fan .blades {
+      position: absolute;
+      width: 80%;
+      height: 80%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform-origin: center;
+      transition: all 0.3s ease;
+    }
+
+    .device .icon.fan.on .blades {
+      animation: spin 1s linear infinite;
+    }
+
+    .device .icon.fan .blade {
+      position: absolute;
+      width: 10px;
+      height: 40px;
+      background-color: #ddd;
+      border-radius: 5px;
+    }
+
+    .device .icon.fan .blade:nth-child(1) {
+      transform: rotate(0deg) translateY(-40px);
+    }
+
+    .device .icon.fan .blade:nth-child(2) {
+      transform: rotate(120deg) translateY(-40px);
+    }
+
+    .device .icon.fan .blade:nth-child(3) {
+      transform: rotate(240deg) translateY(-40px);
+    }
+
+    .device button {
+      margin-top: 10px;
+      background-color: #0e1a1f;
+      color: #fff;
+      border: 2px solid #fff;
+      border-radius: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .device button:hover {
+      background-color: #598392;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><i class="fa-solid fa-dice-d6"></i>EnergAI</h1>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- Bedroom Bulb -->
+    <div class="device">
+      <div class="icon bulb" id="bulb1"></div>
+      <p>Bedroom Bulb</p>
+      <button onclick="toggleDevice('bulb1')">Toggle</button>
+    </div>
+
+    <!-- Bedroom Fan -->
+    <div class="device">
+      <div class="icon fan" id="fan1">
+        <div class="blades">
+          <div class="blade"></div>
+          <div class="blade"></div>
+          <div class="blade"></div>
+        </div>
+      </div>
+      <p>Bedroom Fan</p>
+      <button onclick="toggleDevice('fan1')">Toggle</button>
+    </div>
+
+    <!-- Livingroom Bulb -->
+    <div class="device">
+      <div class="icon bulb" id="bulb2"></div>
+      <p>Livingroom Bulb</p>
+      <button onclick="toggleDevice('bulb2')">Toggle</button>
+    </div>
+  </div>
+
+  <script>
+    async function toggleDevice(deviceId) {
+      try {
+        // Send POST request to the server
+        const response = await fetch("/toggle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ device: deviceId })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          console.log(`Device ${deviceId} toggled`, data);
+          // Toggle the UI state
+          document.getElementById(deviceId).classList.toggle("on");
+          alert(`Device ${deviceId} toggled. Current states: ${JSON.stringify(data.states)}`);
+        } else {
+          alert(`Error toggling ${deviceId}: ${data.message}`);
+        }
+      } catch (error) {
+        console.error(`Error toggling ${deviceId}`, error);
+        alert("An error occurred while sending the request.");
+      }
+    }
+  </script>
+</body>
+</html>
